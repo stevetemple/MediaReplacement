@@ -1,0 +1,13 @@
+{
+    "$schema": "../../umbraco-package-schema.json",
+    "name": "Media Section Replacement",
+    "version": "0.1.0",
+    "extensions": [
+        {
+            "type": "bundle",
+            "alias": "Media.Section.Replacement.Bundle",
+            "name": "Media Section Replacement Bundle",
+            "js": "/App_Plugins/mediareplacement/mediareplacement.js"
+        }
+    ]
+}
