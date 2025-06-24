@@ -2,7 +2,7 @@
 
 Proof of Concept of a replacement for the media section and picker in Umbraco
 
-Originated from a (talk for CodeGarden)[https://slides.com/stevetemple/making-the-dream-a-reality]
+Originated from a [talk for CodeGarden](https://slides.com/stevetemple/making-the-dream-a-reality)
 
 # Developing
 
