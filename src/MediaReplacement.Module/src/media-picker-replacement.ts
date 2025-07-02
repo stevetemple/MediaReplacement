@@ -2,6 +2,7 @@ import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
 import { UMB_MEDIA_TREE_ALIAS } from '@umbraco-cms/backoffice/media';
 import type { UmbDropzoneChangeEvent, UmbUploadableItem } from '@umbraco-cms/backoffice/dropzone';
 import type { UUIInputEvent, UUIPaginationEvent } from '@umbraco-cms/backoffice/external/uui';
+import type { UmbTreeSelectionConfiguration } from '@umbraco-cms/backoffice/tree'
 import { UmbMediaItemRepository, UMB_MEDIA_ROOT_ENTITY_TYPE, UmbMediaSearchProvider } from '@umbraco-cms/backoffice/media';
 
 import type { UmbMediaPickerFolderPathElement, UmbMediaPickerModalData, UmbMediaPickerModalValue  } from '../node_modules/@umbraco-cms/backoffice/dist-cms/packages/media/media/modals';
@@ -22,7 +23,7 @@ import type { UmbEntityModel } from '@umbraco-cms/backoffice/entity';
 import { debounce, UmbPaginationManager } from '@umbraco-cms/backoffice/utils';
 import { isUmbracoFolder } from '@umbraco-cms/backoffice/media-type';
 import MyMediaTreeRepository from './Repository/my-media-tree-repository';
-import { UMB_CONTENT_PROPERTY_CONTEXT } from '@umbraco-cms/backoffice/content';
+import { UMB_CONTENT_PROPERTY_CONTEXT, type UmbContentTreeItemModel } from '@umbraco-cms/backoffice/content';
 import { UMB_VARIANT_CONTEXT } from '@umbraco-cms/backoffice/variant';
 
 const root: UmbMediaPathModel = { name: 'Media', unique: null, entityType: UMB_MEDIA_ROOT_ENTITY_TYPE };
@@ -298,6 +299,10 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 		}
 	}
 
+	#onContentTreeSelected(e: CustomEvent) {
+
+	}
+
   	override render() {
 		return html`
 			<umb-body-layout headline=${this.localize.term('defaultdialogs_chooseMedia')}>
@@ -381,7 +386,20 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 	}
 
 	#renderContentTab() {
-		return html`<umb-tree alias="Umb.Tree.Document"></umb-tree>`
+		const selectionConfiguration: UmbTreeSelectionConfiguration = {
+			multiple: false,
+			selectable: true,
+			selection: [],
+		};
+		return html`
+			<umb-tree alias="Umb.Tree.Document" 
+				.props=${{
+					selectionConfiguration: selectionConfiguration,
+					hideTreeRoot: true
+				}}
+				@selected=${this.#onContentTreeSelected}>
+			</umb-tree>
+		`
 	}
 
 	#renderSearchResult() {
@@ -456,7 +474,6 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 		const canNavigate = this.#allowNavigateToMedia(item);
 		const selectable = this._selectableFilter(item);
 		const disabled = !(selectable || canNavigate);
-		console.log(item.unique)
 		return html`
 			<uui-card-media
 				class=${ifDefined(disabled ? 'not-allowed' : undefined)}
@@ -489,6 +506,11 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 			return nothing;
 		}
 
+		// Breadcrumbs only make sense in the `medialibrary` tab
+		if (this._activeTabId !== 'medialibrary') {
+			return nothing;
+		}
+
 		const startNode: UmbMediaPathModel | undefined = this._startNode
 			? {
 					entityType: this._startNode.entityType,
@@ -507,12 +529,9 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 		`;
 	}
 
-
-
 	#setTab(tabId: string | null | undefined) {
 		this._activeTabId = tabId;
 	}
-
 
 	static override styles = [
 		css`
@@ -577,11 +596,6 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 				border: 1px solid lightgray;
 				margin-bottom: 10px;
 				cursor: pointer;
-			}
-
-			#clickToUploadButton {
-				color: lightgrey;
-				margin-left:270px;
 			}
 		`,
 	];
