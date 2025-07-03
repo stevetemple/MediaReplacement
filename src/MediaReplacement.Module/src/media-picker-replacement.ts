@@ -26,6 +26,8 @@ import MyMediaTreeRepository from './Repository/my-media-tree-repository';
 import { UMB_CONTENT_PROPERTY_CONTEXT, type UmbContentTreeItemModel } from '@umbraco-cms/backoffice/content';
 import { UMB_VARIANT_CONTEXT } from '@umbraco-cms/backoffice/variant';
 
+import { ContentMediaRespository } from './ContentMedia/content-media-repository';
+
 const root: UmbMediaPathModel = { name: 'Media', unique: null, entityType: UMB_MEDIA_ROOT_ENTITY_TYPE };
 
 @customElement('umb-media-picker-replacement-modal')
@@ -33,9 +35,14 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 	#mediaTreeRepository = new MyMediaTreeRepository(this);
 	#mediaItemRepository = new UmbMediaItemRepository(this);
 	#mediaSearchProvider = new UmbMediaSearchProvider(this);
+	#contentMediaRepository = new ContentMediaRespository(this);
+	
 
 	#dataType?: { unique: string };
 	#contextCulture?: string | null;
+
+	@state()
+	private _contentMedia: Array<UmbMediaTreeItemModel> = [];
 
 	@state()
 	private _selectableFilter: (item: UmbMediaTreeItemModel | UmbMediaSearchItemModel) => boolean = () => true;
@@ -144,8 +151,7 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 			skip,
 			take,
 		});
-		console.log(data);
-
+		
 		this._currentChildren = data?.items ?? [];
 		paginationManager.setTotalItems(data?.total ?? 0);
 		this._currentPage = paginationManager.getCurrentPageNumber();
@@ -299,8 +305,10 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 		}
 	}
 
-	#onContentTreeSelected(e: CustomEvent) {
+	async #onContentTreeSelected(e: CustomEvent) {
+		const data = await this.#contentMediaRepository.getMediaForContent(e.unique);
 
+		this._contentMedia = data;
 	}
 
   	override render() {
@@ -399,6 +407,9 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 				}}
 				@selected=${this.#onContentTreeSelected}>
 			</umb-tree>
+			<div style="padding-top:10px;padding-bottom:10px">
+				${this.#renderContentMedia()}
+			</div>
 		`
 	}
 
@@ -441,6 +452,21 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 		`;
 	}
 
+	#renderContentMedia() {
+		return html`
+			${!this._contentMedia.length
+				? html`<div class="container"><p>${this.localize.term('content_selectacontentitem')}</p></div>`
+				: html`<div id="media-grid">
+							${repeat(
+								this._contentMedia,
+								(item) => item.unique,
+								(item) => this.#renderCard(item),
+							)}
+						</div>
+						`}
+		`;
+	}
+
 	#renderToolbar() {
 		/**<umb-media-picker-create-item .node=${this._currentMediaEntity.unique}></umb-media-picker-create-item>
 		 * We cannot route to a workspace without the media picker modal is a routeable. Using regular upload button for now... */
@@ -474,6 +500,7 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 		const canNavigate = this.#allowNavigateToMedia(item);
 		const selectable = this._selectableFilter(item);
 		const disabled = !(selectable || canNavigate);
+		console.log(item);
 		return html`
 			<uui-card-media
 				class=${ifDefined(disabled ? 'not-allowed' : undefined)}
