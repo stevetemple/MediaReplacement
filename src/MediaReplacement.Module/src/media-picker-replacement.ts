@@ -4,6 +4,7 @@ import type { UmbDropzoneChangeEvent, UmbUploadableItem } from '@umbraco-cms/bac
 import type { UUIInputEvent, UUIPaginationEvent } from '@umbraco-cms/backoffice/external/uui';
 import type { UmbTreeSelectionConfiguration } from '@umbraco-cms/backoffice/tree'
 import { UmbMediaItemRepository, UMB_MEDIA_ROOT_ENTITY_TYPE, UmbMediaSearchProvider } from '@umbraco-cms/backoffice/media';
+import { MediaFolderThumbnailsElement } from './media-folder-thumbnails.element'; 
 
 import type { UmbMediaPickerFolderPathElement, UmbMediaPickerModalData, UmbMediaPickerModalValue  } from '../node_modules/@umbraco-cms/backoffice/dist-cms/packages/media/media/modals';
 
@@ -23,10 +24,11 @@ import type { UmbEntityModel } from '@umbraco-cms/backoffice/entity';
 import { debounce, UmbPaginationManager } from '@umbraco-cms/backoffice/utils';
 import { isUmbracoFolder } from '@umbraco-cms/backoffice/media-type';
 import MyMediaTreeRepository from './Repository/my-media-tree-repository';
-import { UMB_CONTENT_PROPERTY_CONTEXT, type UmbContentTreeItemModel } from '@umbraco-cms/backoffice/content';
+import { UMB_CONTENT_PROPERTY_CONTEXT } from '@umbraco-cms/backoffice/content';
 import { UMB_VARIANT_CONTEXT } from '@umbraco-cms/backoffice/variant';
 
 import { ContentMediaRespository } from './ContentMedia/content-media-repository';
+import type { UmbSelectedEvent } from '@umbraco-cms/backoffice/event';
 
 const root: UmbMediaPathModel = { name: 'Media', unique: null, entityType: UMB_MEDIA_ROOT_ENTITY_TYPE };
 
@@ -305,10 +307,11 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 		}
 	}
 
-	async #onContentTreeSelected(e: CustomEvent) {
-		const data = await this.#contentMediaRepository.getMediaForContent(e.unique);
-
-		this._contentMedia = data;
+	async #onContentTreeSelected(e: UmbSelectedEvent) {
+		if(e.unique !== null) {
+			const unique = { unique : e.unique };
+			this._contentMedia = await this.#contentMediaRepository.getMediaForContent(unique);
+		}
 	}
 
   	override render() {
@@ -455,15 +458,14 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 	#renderContentMedia() {
 		return html`
 			${!this._contentMedia.length
-				? html`<div class="container"><p>${this.localize.term('content_selectacontentitem')}</p></div>`
+				? html`<div class="container"><p>${this.localize.term('content_listViewNoItems')}</p></div>`
 				: html`<div id="media-grid">
 							${repeat(
 								this._contentMedia,
 								(item) => item.unique,
 								(item) => this.#renderCard(item),
 							)}
-						</div>
-						`}
+						</div>`}
 		`;
 	}
 
@@ -500,7 +502,6 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 		const canNavigate = this.#allowNavigateToMedia(item);
 		const selectable = this._selectableFilter(item);
 		const disabled = !(selectable || canNavigate);
-		console.log(item);
 		return html`
 			<uui-card-media
 				class=${ifDefined(disabled ? 'not-allowed' : undefined)}
@@ -558,6 +559,7 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 
 	#setTab(tabId: string | null | undefined) {
 		this._activeTabId = tabId;
+		this._contentMedia = [];
 	}
 
 	static override styles = [

@@ -1,5 +1,5 @@
 import { type Options as ClientOptions, type TDataShape, type Client } from '@hey-api/client-fetch';
-import { type GetUmbracoManagementApiV1DocumentByIdMediaResponses, type GetUmbracoManagementApiV1DocumentByIdMediaErrors, type GetUmbracoManagementApiV1DocumentByIdMediaData } from './types';
+import { type GetUmbracoManagementApiV1DocumentByIdMediaErrors, type GetUmbracoManagementApiV1DocumentByIdMediaData } from './types';
 import { umbHttpClient } from '@umbraco-cms/backoffice/http-client';
 import type { MediaTreeItemResponseModel } from '@umbraco-cms/backoffice/external/backend-api';
 

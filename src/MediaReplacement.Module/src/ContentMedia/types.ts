@@ -1,4 +1,4 @@
-import { type MediaTreeItemResponseModel } from "../api";
+import { type MediaTreeItemResponseModel } from '@umbraco-cms/backoffice/external/backend-api';
 
 export interface GetMediaForContentRequestArgs {
     id: {
@@ -9,7 +9,7 @@ export interface GetMediaForContentRequestArgs {
 export type GetUmbracoManagementApiV1DocumentByIdMediaData = {
     body?: never;
     path: {
-        id: { unique : string};
+        id: string;
     };
     query?: never;
     url: '/umbraco/management/api/v1/document/{id}/media';

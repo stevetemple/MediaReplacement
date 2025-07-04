@@ -15,7 +15,7 @@ export class ContentMediaDataSource implements ContentMediaSource {
         var media = await ContentMediaService.getUmbracoManagementApiV1DocumentByIdMedia(
             {
                 path : {
-                    id : args.id                
+                    id : args.id.unique                
                 }    
             }
         );
