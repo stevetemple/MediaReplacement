@@ -1,6 +1,3 @@
-
-import { umbExtensionsRegistry as e } from "@umbraco-cms/backoffice/extension-registry";
-
 const o = [
   {
     name: "Media Picker Modal",

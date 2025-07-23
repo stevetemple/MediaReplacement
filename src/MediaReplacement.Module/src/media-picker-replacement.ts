@@ -30,11 +30,11 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement {
 					</uui-tab>
 				</uui-tab-group>
 				${this._activeTabId === "upload"
-					? html`$${this.#renderUploadTab()}`
+					? html`${this.#renderUploadTab()}`
 					: nothing
 				}
 				${this._activeTabId === "existing"
-					? html`$${this.#renderExistingTab()}`
+					? html`${this.#renderExistingTab()}`
 					: nothing
 				}
 			</uui-box>
