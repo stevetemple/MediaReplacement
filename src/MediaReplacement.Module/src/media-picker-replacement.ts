@@ -2,13 +2,11 @@ import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
 import { UMB_MEDIA_TREE_ALIAS } from '@umbraco-cms/backoffice/media';
 import type { UmbDropzoneChangeEvent, UmbUploadableItem } from '@umbraco-cms/backoffice/dropzone';
 import type { UUIInputEvent, UUIPaginationEvent } from '@umbraco-cms/backoffice/external/uui';
-import type { UmbTreeSelectionConfiguration } from '@umbraco-cms/backoffice/tree'
 import { UmbMediaItemRepository, UMB_MEDIA_ROOT_ENTITY_TYPE, UmbMediaSearchProvider } from '@umbraco-cms/backoffice/media';
-import { MediaFolderThumbnailsElement } from './media-folder-thumbnails.element'; 
 
 import type { UmbMediaPickerFolderPathElement, UmbMediaPickerModalData, UmbMediaPickerModalValue  } from '../node_modules/@umbraco-cms/backoffice/dist-cms/packages/media/media/modals';
-
 import type { UmbMediaTreeItemModel, UmbMediaSearchItemModel, UmbMediaItemModel, UmbMediaPathModel, UmbDropzoneMediaElement } from '@umbraco-cms/backoffice/media';
+
 import {
   	html,
 	css,
@@ -21,14 +19,12 @@ import {
 	repeat
 } from '@umbraco-cms/backoffice/external/lit';
 import type { UmbEntityModel } from '@umbraco-cms/backoffice/entity';
+
 import { debounce, UmbPaginationManager } from '@umbraco-cms/backoffice/utils';
 import { isUmbracoFolder } from '@umbraco-cms/backoffice/media-type';
 import MyMediaTreeRepository from './Repository/my-media-tree-repository';
 import { UMB_CONTENT_PROPERTY_CONTEXT } from '@umbraco-cms/backoffice/content';
 import { UMB_VARIANT_CONTEXT } from '@umbraco-cms/backoffice/variant';
-
-import { ContentMediaRespository } from './ContentMedia/content-media-repository';
-import type { UmbSelectedEvent } from '@umbraco-cms/backoffice/event';
 
 const root: UmbMediaPathModel = { name: 'Media', unique: null, entityType: UMB_MEDIA_ROOT_ENTITY_TYPE };
 
@@ -37,11 +33,12 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 	#mediaTreeRepository = new MyMediaTreeRepository(this);
 	#mediaItemRepository = new UmbMediaItemRepository(this);
 	#mediaSearchProvider = new UmbMediaSearchProvider(this);
-	#contentMediaRepository = new ContentMediaRespository(this);
-	
 
 	#dataType?: { unique: string };
 	#contextCulture?: string | null;
+
+	#uploadTabId : string = "upload";
+	#existingTabId : string = "existing";
 
 	@state()
 	private _contentMedia: Array<UmbMediaTreeItemModel> = [];
@@ -50,7 +47,7 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 	private _selectableFilter: (item: UmbMediaTreeItemModel | UmbMediaSearchItemModel) => boolean = () => true;
 
 	@state()
-	private _activeTabId?: string | null | undefined;
+	private _activeTabId?: string = this.#uploadTabId;
 
 	@state()
 	private _currentChildren: Array<UmbMediaTreeItemModel> = [];
@@ -110,9 +107,7 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 		super.firstUpdated(_changedProperties);
 
 		const startNode = this.data?.startNode;
-
-		this.#setTab("upload");
-
+		
 		if (startNode) {
 			const { data } = await this.#mediaItemRepository.requestItems([startNode.unique]);
 			this._startNode = data?.[0];
@@ -306,14 +301,7 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 			this._mediaTree.style.display = "none";	
 		}
 	}
-
-	async #onContentTreeSelected(e: UmbSelectedEvent) {
-		if(e.unique !== null) {
-			const unique = { unique : e.unique };
-			this._contentMedia = await this.#contentMediaRepository.getMediaForContent(unique);
-		}
-	}
-
+	
   	override render() {
 		return html`
 			<umb-body-layout headline=${this.localize.term('defaultdialogs_chooseMedia')}>
@@ -335,24 +323,18 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 		return html`
 			<uui-box>
 				<uui-tab-group slot="header">
-					<uui-tab .active=${this._activeTabId === "upload"} @click=${() => this.#setTab("upload")}>
+					<uui-tab .active=${this._activeTabId === this.#uploadTabId} @click=${() => this.#setTab(this.#uploadTabId)}>
 						Upload new
 					</uui-tab>
-					<uui-tab .active=${this._activeTabId === "medialibrary"} @click=${() => this.#setTab("medialibrary")}>
+					<uui-tab .active=${this._activeTabId === this.#existingTabId} @click=${() => this.#setTab(this.#existingTabId)}>
 						Media library
 					</uui-tab>
-					<uui-tab .active=${this._activeTabId === "content"} @click=${() => this.#setTab("content")}>
-						Find by content
-					</uui-tab>
 				</uui-tab-group>
-				${this._activeTabId === "upload"
+				${this._activeTabId === this.#uploadTabId
 					? html`${this.#renderUploadTab()}`
 					: nothing}
-				${this._activeTabId === "medialibrary" 
+				${this._activeTabId === this.#existingTabId 
 					? html`${this.#renderExistingTab()}`
-					: nothing}
-				${this._activeTabId === "content" 
-					? html`${this.#renderContentTab()}`
 					: nothing}
 			</uui-box>
 		`;
@@ -394,26 +376,6 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 		return html`${this.#renderToolbar()} 
 			${this._searchQuery ? this.#renderSearchResult() : this.#renderCurrentChildren()}`;
 
-	}
-
-	#renderContentTab() {
-		const selectionConfiguration: UmbTreeSelectionConfiguration = {
-			multiple: false,
-			selectable: true,
-			selection: [],
-		};
-		return html`
-			<umb-tree alias="Umb.Tree.Document" 
-				.props=${{
-					selectionConfiguration: selectionConfiguration,
-					hideTreeRoot: true
-				}}
-				@selected=${this.#onContentTreeSelected}>
-			</umb-tree>
-			<div style="padding-top:10px;padding-bottom:10px">
-				${this.#renderContentMedia()}
-			</div>
-		`
 	}
 
 	#renderSearchResult() {
@@ -557,7 +519,7 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 		`;
 	}
 
-	#setTab(tabId: string | null | undefined) {
+	#setTab(tabId: string) {
 		this._activeTabId = tabId;
 		this._contentMedia = [];
 	}
