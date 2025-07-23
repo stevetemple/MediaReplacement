@@ -342,33 +342,7 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 
 	#renderUploadTab() {
 		return html`
-			<div class="dropzone" @click=${() => this._dropzone.browse()}>
-				<uui-symbol-file-dropzone></uui-symbol-file-dropzone>
-				<umb-dropzone-media
-					id="dropzone"
-					multiple
-					@change=${this.#onDropzoneChange}
-					.parentUnique=${this._currentMediaEntity.unique}>
-				</umb-dropzone-media>
-				<uui-button
-					@click=${() => this._dropzone.browse()}
-					id="clickToUploadButton">
-					Click to upload
-				</uui-button>
-			</div>
-				
-
-			<div style="padding-top:10px;padding-bottom:10px">
-				<uui-checkbox label="Save in media library for reuse"
-					id="saveinmedialibrary"
-					@change=${this.#onSaveInMediaLibraryChange}>
-					Save in media library for reuse
-				</uui-checkbox>
-			</div>
-
-			<div id="mediaTree" style="display:none" style="border:1px solid lightgrey">
-				<umb-tree .alias="${UMB_MEDIA_TREE_ALIAS}"></umb-tree>
-			</div>
+			Upload tab
 		`;
 	}
 
@@ -416,21 +390,7 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 							: nothing}`}
 		`;
 	}
-
-	#renderContentMedia() {
-		return html`
-			${!this._contentMedia.length
-				? html`<div class="container"><p>${this.localize.term('content_listViewNoItems')}</p></div>`
-				: html`<div id="media-grid">
-							${repeat(
-								this._contentMedia,
-								(item) => item.unique,
-								(item) => this.#renderCard(item),
-							)}
-						</div>`}
-		`;
-	}
-
+	
 	#renderToolbar() {
 		/**<umb-media-picker-create-item .node=${this._currentMediaEntity.unique}></umb-media-picker-create-item>
 		 * We cannot route to a workspace without the media picker modal is a routeable. Using regular upload button for now... */
@@ -475,16 +435,11 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 				?selected=${this.value?.selection?.find((value) => value === item.unique)}
 				?selectable=${selectable}
 				?select-only=${this._isSelectionMode || canNavigate === false}>
-				${item.hasChildren ? html`<umb-media-folder-thumbnails
-					.folder=${item}
-					.datatype=${this.#dataType}
-				>`: nothing}
-				</umb-media-folder-thumbnails>
-				${!item.hasChildren ? html`<umb-imaging-thumbnail
+				<umb-imaging-thumbnail
 					unique=${item.unique}
 					alt=${item.name}
 					icon=${item.mediaType.icon}>
-				</umb-imaging-thumbnail>` : nothing}
+				</umb-imaging-thumbnail>
 			</uui-card-media>
 		`;
 	}
@@ -497,7 +452,7 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 		}
 
 		// Breadcrumbs only make sense in the `medialibrary` tab
-		if (this._activeTabId !== 'medialibrary') {
+		if (this._activeTabId !== this.#existingTabId) {
 			return nothing;
 		}
 
