@@ -1,5 +1,4 @@
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
-import { UMB_MEDIA_TREE_ALIAS } from '@umbraco-cms/backoffice/media';
 import type { UmbDropzoneChangeEvent, UmbUploadableItem } from '@umbraco-cms/backoffice/dropzone';
 import type { UUIInputEvent, UUIPaginationEvent } from '@umbraco-cms/backoffice/external/uui';
 import { UmbMediaItemRepository, UMB_MEDIA_ROOT_ENTITY_TYPE, UmbMediaSearchProvider } from '@umbraco-cms/backoffice/media';
@@ -12,7 +11,6 @@ import {
 	css,
 	customElement,
 	state,
-	query,
 	type PropertyValues,
 	nothing,
 	ifDefined,
@@ -39,9 +37,6 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 
 	#uploadTabId : string = "upload";
 	#existingTabId : string = "existing";
-
-	@state()
-	private _contentMedia: Array<UmbMediaTreeItemModel> = [];
 
 	@state()
 	private _selectableFilter: (item: UmbMediaTreeItemModel | UmbMediaSearchItemModel) => boolean = () => true;
@@ -76,12 +71,6 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 	@state()
 	private _startNode: UmbMediaItemModel | undefined;
 
-	@query('#dropzone')
-	private _dropzone!: UmbDropzoneMediaElement;
-
-	@query('#mediaTree')
-	private _mediaTree! : any;
-	
 	@state()
 	_searching: boolean = false;
 
@@ -292,15 +281,6 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 			this._searchFrom = undefined;
 		}
 	}
-
-	#onSaveInMediaLibraryChange(e: CustomEvent) { 
-		const checked = (e.target as HTMLInputElement).checked;
-		if(checked) {
-			this._mediaTree.style.display = "";
-		} else {
-			this._mediaTree.style.display = "none";	
-		}
-	}
 	
   	override render() {
 		return html`
@@ -476,7 +456,6 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 
 	#setTab(tabId: string) {
 		this._activeTabId = tabId;
-		this._contentMedia = [];
 	}
 
 	static override styles = [
