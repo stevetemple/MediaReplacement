@@ -41,9 +41,6 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 	#existingTabId : string = "existing";
 
 	@state()
-	private _contentMedia: Array<UmbMediaTreeItemModel> = [];
-
-	@state()
 	private _selectableFilter: (item: UmbMediaTreeItemModel | UmbMediaSearchItemModel) => boolean = () => true;
 
 	@state()
@@ -75,13 +72,13 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 	
 	@state()
 	private _startNode: UmbMediaItemModel | undefined;
-
+	
 	@query('#dropzone')
 	private _dropzone!: UmbDropzoneMediaElement;
 
 	@query('#mediaTree')
 	private _mediaTree! : any;
-	
+
 	@state()
 	_searching: boolean = false;
 
@@ -342,7 +339,33 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 
 	#renderUploadTab() {
 		return html`
-			Upload tab
+			<div class="dropzone" @click=${() => this._dropzone.browse()}>
+				<uui-symbol-file-dropzone></uui-symbol-file-dropzone>
+				<umb-dropzone-media
+					id="dropzone"
+					multiple
+					@change=${this.#onDropzoneChange}
+					.parentUnique=${this._currentMediaEntity.unique}>
+				</umb-dropzone-media>
+				<uui-button
+					@click=${() => this._dropzone.browse()}
+					id="clickToUploadButton">
+					Click to upload
+				</uui-button>
+			</div>
+				
+
+			<div style="padding-top:10px;padding-bottom:10px">
+				<uui-checkbox label="Save in media library for reuse"
+					id="saveinmedialibrary"
+					@change=${this.#onSaveInMediaLibraryChange}>
+					Save in media library for reuse
+				</uui-checkbox>
+			</div>
+
+			<div id="mediaTree" style="display:none" style="border:1px solid lightgrey">
+				<umb-tree .alias="${UMB_MEDIA_TREE_ALIAS}"></umb-tree>
+			</div>
 		`;
 	}
 
@@ -476,7 +499,6 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 
 	#setTab(tabId: string) {
 		this._activeTabId = tabId;
-		this._contentMedia = [];
 	}
 
 	static override styles = [
