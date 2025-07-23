@@ -1,6 +1,6 @@
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
-import { UMB_MEDIA_TREE_ALIAS, UmbMediaTreeRepository } from '@umbraco-cms/backoffice/media';
-import type { UmbDropzoneChangeEvent, UmbUploadableItem } from '@umbraco-cms/backoffice/dropzone';
+import { UmbMediaTreeRepository } from '@umbraco-cms/backoffice/media';
+import type { UmbUploadableItem } from '@umbraco-cms/backoffice/dropzone';
 import type { UUIInputEvent, UUIPaginationEvent } from '@umbraco-cms/backoffice/external/uui';
 import { UmbMediaItemRepository, UMB_MEDIA_ROOT_ENTITY_TYPE, UmbMediaSearchProvider } from '@umbraco-cms/backoffice/media';
 
@@ -12,7 +12,6 @@ import {
 	css,
 	customElement,
 	state,
-	query,
 	type PropertyValues,
 	nothing,
 	ifDefined,
@@ -38,9 +37,6 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 
 	#uploadTabId : string = "upload";
 	#existingTabId : string = "existing";
-
-	@state()
-	private _contentMedia: Array<UmbMediaTreeItemModel> = [];
 
 	@state()
 	private _selectableFilter: (item: UmbMediaTreeItemModel | UmbMediaSearchItemModel) => boolean = () => true;
@@ -75,12 +71,6 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 	@state()
 	private _startNode: UmbMediaItemModel | undefined;
 
-	@query('#dropzone')
-	private _dropzone!: UmbDropzoneMediaElement;
-
-	@query('#mediaTree')
-	private _mediaTree! : any;
-	
 	@state()
 	_searching: boolean = false;
 
@@ -159,11 +149,6 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 				this.#onSelected(selectedItem);
 			}
 		}
-	}
-
-	#onDropzoneChange(evt: UmbDropzoneChangeEvent) {
-		const target = evt.target as UmbDropzoneMediaElement;
-		this.#loadChildrenOfCurrentMediaItem(target.value);
 	}
 
 	#onOpen(item: UmbMediaTreeItemModel | UmbMediaSearchItemModel) {
@@ -292,15 +277,6 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 		}
 	}
 
-	#onSaveInMediaLibraryChange(e: CustomEvent) { 
-		const checked = (e.target as HTMLInputElement).checked;
-		if(checked) {
-			this._mediaTree.style.display = "";
-		} else {
-			this._mediaTree.style.display = "none";	
-		}
-	}
-	
   	override render() {
 		return html`
 			<umb-body-layout headline=${this.localize.term('defaultdialogs_chooseMedia')}>
@@ -390,20 +366,6 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 		`;
 	}
 
-	#renderContentMedia() {
-		return html`
-			${!this._contentMedia.length
-				? html`<div class="container"><p>${this.localize.term('content_listViewNoItems')}</p></div>`
-				: html`<div id="media-grid">
-							${repeat(
-								this._contentMedia,
-								(item) => item.unique,
-								(item) => this.#renderCard(item),
-							)}
-						</div>`}
-		`;
-	}
-
 	#renderToolbar() {
 		/**<umb-media-picker-create-item .node=${this._currentMediaEntity.unique}></umb-media-picker-create-item>
 		 * We cannot route to a workspace without the media picker modal is a routeable. Using regular upload button for now... */
@@ -489,7 +451,6 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 
 	#setTab(tabId: string) {
 		this._activeTabId = tabId;
-		this._contentMedia = [];
 	}
 
 	static override styles = [
