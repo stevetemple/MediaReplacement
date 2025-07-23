@@ -2,13 +2,18 @@ import {
 	html,
 	customElement,
 	nothing,
+	state,
 } from '@umbraco-cms/backoffice/external/lit';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
 
 @customElement('umb-media-picker-replacement-modal')
 export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement {
+	
+	#uploadTabId : string = "upload";
+	#existingTabId : string = "existing";
 
-	_activeTabId : string = "upload";
+	@state()
+	private _activeTabId?: string = "upload";
 
 	public override render() {
 		return html`
@@ -22,18 +27,18 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement {
 		return html`
 			<uui-box>
 				<uui-tab-group slot="header">
-					<uui-tab .active=${this._activeTabId === "upload"} @click=${() => this.#setTab("upload")}>
+					<uui-tab .active=${this._activeTabId === this.#uploadTabId} @click=${() => this.#setTab(this.#uploadTabId)}>
 						Upload new
 					</uui-tab>
-					<uui-tab .active=${this._activeTabId === "existing"} @click=${() => this.#setTab("existing")}>
+					<uui-tab .active=${this._activeTabId === this.#existingTabId} @click=${() => this.#setTab(this.#existingTabId)}>
 						Select existing
 					</uui-tab>
 				</uui-tab-group>
-				${this._activeTabId === "upload"
+				${this._activeTabId === this.#uploadTabId
 					? html`${this.#renderUploadTab()}`
 					: nothing
 				}
-				${this._activeTabId === "existing"
+				${this._activeTabId === this.#existingTabId
 					? html`${this.#renderExistingTab()}`
 					: nothing
 				}
