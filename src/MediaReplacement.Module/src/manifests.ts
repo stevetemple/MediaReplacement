@@ -1,9 +1,12 @@
+
+import { umbExtensionsRegistry as e } from "@umbraco-cms/backoffice/extension-registry";
+
+e.unregister("Umb.Modal.MediaPicker");
 const o = [
   {
     name: "Media Picker Modal",
-    alias: "Umb.Modal.ReplacementMediaPicker",
+    alias: "Umb.Modal.MediaPicker",
     type: "modal",
-    overwrites: "Umb.Modal.MediaPicker",
     js: () => import('./media-picker-replacement.js') 
   },
 ], a = [
