@@ -458,11 +458,15 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 				?selected=${this.value?.selection?.find((value) => value === item.unique)}
 				?selectable=${selectable}
 				?select-only=${this._isSelectionMode || canNavigate === false}>
-				<umb-imaging-thumbnail
+				${item.hasChildren ? html`<umb-media-folder-thumbnails
+					.folder=${item}
+					.datatype=${this.#dataType}
+				></umb-media-folder-thumbnails>`: nothing}
+				${!item.hasChildren ? html`<umb-imaging-thumbnail
 					unique=${item.unique}
 					alt=${item.name}
 					icon=${item.mediaType.icon}>
-				</umb-imaging-thumbnail>
+				</umb-imaging-thumbnail>` : nothing}
 			</uui-card-media>
 		`;
 	}

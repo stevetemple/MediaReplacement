@@ -1,7 +1,7 @@
-
 import { umbExtensionsRegistry as e } from "@umbraco-cms/backoffice/extension-registry";
 import MyMediaTreeRepository from './Repository/my-media-tree-repository.js';
 import MyMediaTreeStore from './Repository/my-media-tree.store.js';
+import { MediaFolderThumbnailsElement } from './media-folder-thumbnails.element'; 
 
 e.unregister("Umb.Modal.MediaPicker");
 const o = [
