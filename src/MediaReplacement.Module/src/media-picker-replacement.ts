@@ -1,5 +1,5 @@
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
-import { UMB_MEDIA_TREE_ALIAS } from '@umbraco-cms/backoffice/media';
+import { UMB_MEDIA_TREE_ALIAS, UmbMediaTreeRepository } from '@umbraco-cms/backoffice/media';
 import type { UmbDropzoneChangeEvent, UmbUploadableItem } from '@umbraco-cms/backoffice/dropzone';
 import type { UUIInputEvent, UUIPaginationEvent } from '@umbraco-cms/backoffice/external/uui';
 import { UmbMediaItemRepository, UMB_MEDIA_ROOT_ENTITY_TYPE, UmbMediaSearchProvider } from '@umbraco-cms/backoffice/media';
@@ -22,7 +22,6 @@ import type { UmbEntityModel } from '@umbraco-cms/backoffice/entity';
 
 import { debounce, UmbPaginationManager } from '@umbraco-cms/backoffice/utils';
 import { isUmbracoFolder } from '@umbraco-cms/backoffice/media-type';
-import MyMediaTreeRepository from './Repository/my-media-tree-repository';
 import { UMB_CONTENT_PROPERTY_CONTEXT } from '@umbraco-cms/backoffice/content';
 import { UMB_VARIANT_CONTEXT } from '@umbraco-cms/backoffice/variant';
 
@@ -30,7 +29,7 @@ const root: UmbMediaPathModel = { name: 'Media', unique: null, entityType: UMB_M
 
 @customElement('umb-media-picker-replacement-modal')
 export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<UmbMediaPickerModalData, UmbMediaPickerModalValue> {
-	#mediaTreeRepository = new MyMediaTreeRepository(this);
+	#mediaTreeRepository = new UmbMediaTreeRepository(this);
 	#mediaItemRepository = new UmbMediaItemRepository(this);
 	#mediaSearchProvider = new UmbMediaSearchProvider(this);
 
@@ -342,33 +341,7 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 
 	#renderUploadTab() {
 		return html`
-			<div class="dropzone" @click=${() => this._dropzone.browse()}>
-				<uui-symbol-file-dropzone></uui-symbol-file-dropzone>
-				<umb-dropzone-media
-					id="dropzone"
-					multiple
-					@change=${this.#onDropzoneChange}
-					.parentUnique=${this._currentMediaEntity.unique}>
-				</umb-dropzone-media>
-				<uui-button
-					@click=${() => this._dropzone.browse()}
-					id="clickToUploadButton">
-					Click to upload
-				</uui-button>
-			</div>
-				
-
-			<div style="padding-top:10px;padding-bottom:10px">
-				<uui-checkbox label="Save in media library for reuse"
-					id="saveinmedialibrary"
-					@change=${this.#onSaveInMediaLibraryChange}>
-					Save in media library for reuse
-				</uui-checkbox>
-			</div>
-
-			<div id="mediaTree" style="display:none" style="border:1px solid lightgrey">
-				<umb-tree .alias="${UMB_MEDIA_TREE_ALIAS}"></umb-tree>
-			</div>
+			Upload tab
 		`;
 	}
 
@@ -475,16 +448,11 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 				?selected=${this.value?.selection?.find((value) => value === item.unique)}
 				?selectable=${selectable}
 				?select-only=${this._isSelectionMode || canNavigate === false}>
-				${item.hasChildren ? html`<umb-media-folder-thumbnails
-					.folder=${item}
-					.datatype=${this.#dataType}
-				>`: nothing}
-				</umb-media-folder-thumbnails>
-				${!item.hasChildren ? html`<umb-imaging-thumbnail
+				<umb-imaging-thumbnail
 					unique=${item.unique}
 					alt=${item.name}
 					icon=${item.mediaType.icon}>
-				</umb-imaging-thumbnail>` : nothing}
+				</umb-imaging-thumbnail>
 			</uui-card-media>
 		`;
 	}
@@ -496,8 +464,8 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 			return nothing;
 		}
 
-		// Breadcrumbs only make sense in the `medialibrary` tab
-		if (this._activeTabId !== 'medialibrary') {
+		// Breadcrumbs only make sense in the existing item tab
+		if (this._activeTabId !== this.#existingTabId) {
 			return nothing;
 		}
 
