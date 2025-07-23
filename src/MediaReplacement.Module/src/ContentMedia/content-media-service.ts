@@ -19,7 +19,9 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 };
 
 export class ContentMediaService {
-    public static getUmbracoManagementApiV1DocumentByIdMedia = <ThrowOnError extends boolean = false>(options: Options<GetUmbracoManagementApiV1DocumentByIdMediaData, ThrowOnError>) => {
+    public static getUmbracoManagementApiV1DocumentByIdMedia = 
+    <ThrowOnError extends boolean = false>(options: Options<GetUmbracoManagementApiV1DocumentByIdMediaData, ThrowOnError>) => {
+        
         return umbHttpClient.get<Array<MediaTreeItemResponseModel>, GetUmbracoManagementApiV1DocumentByIdMediaErrors, ThrowOnError>({
             security: [
                 {
