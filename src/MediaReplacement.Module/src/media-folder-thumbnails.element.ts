@@ -2,11 +2,11 @@ import { css, customElement, html, nothing, property, repeat, state, when } from
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import type { UmbMediaTreeItemModel} from '@umbraco-cms/backoffice/media';
-import MyMediaTreeRepository from './Repository/my-media-tree-repository';
+import { UmbMediaTreeRepository } from '@umbraco-cms/backoffice/media';
 
 @customElement('umb-media-folder-thumbnails')
 export class MediaFolderThumbnailsElement extends UmbLitElement {
-    #mediaTreeRepository = new MyMediaTreeRepository(this);
+    #mediaTreeRepository = new UmbMediaTreeRepository(this);
 
 	/**
 	 * The parent media item to get thumbnails for

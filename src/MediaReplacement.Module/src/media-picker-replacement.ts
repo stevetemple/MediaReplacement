@@ -1,5 +1,5 @@
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
-import { UMB_MEDIA_TREE_ALIAS } from '@umbraco-cms/backoffice/media';
+import { UMB_MEDIA_TREE_ALIAS, UmbMediaTreeRepository } from '@umbraco-cms/backoffice/media';
 import type { UmbDropzoneChangeEvent, UmbUploadableItem } from '@umbraco-cms/backoffice/dropzone';
 import type { UUIInputEvent, UUIPaginationEvent } from '@umbraco-cms/backoffice/external/uui';
 import type { UmbTreeSelectionConfiguration } from '@umbraco-cms/backoffice/tree'
@@ -22,7 +22,6 @@ import {
 import type { UmbEntityModel } from '@umbraco-cms/backoffice/entity';
 import { debounce, UmbPaginationManager } from '@umbraco-cms/backoffice/utils';
 import { isUmbracoFolder } from '@umbraco-cms/backoffice/media-type';
-import MyMediaTreeRepository from './Repository/my-media-tree-repository';
 import { UMB_CONTENT_PROPERTY_CONTEXT } from '@umbraco-cms/backoffice/content';
 import { UMB_VARIANT_CONTEXT } from '@umbraco-cms/backoffice/variant';
 
@@ -33,7 +32,7 @@ const root: UmbMediaPathModel = { name: 'Media', unique: null, entityType: UMB_M
 
 @customElement('umb-media-picker-replacement-modal')
 export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<UmbMediaPickerModalData, UmbMediaPickerModalValue> {
-	#mediaTreeRepository = new MyMediaTreeRepository(this);
+	#mediaTreeRepository = new UmbMediaTreeRepository(this);
 	#mediaItemRepository = new UmbMediaItemRepository(this);
 	#mediaSearchProvider = new UmbMediaSearchProvider(this);
 	#contentMediaRepository = new ContentMediaRespository(this);
