@@ -1,12 +1,10 @@
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
-import { UMB_MEDIA_TREE_ALIAS, UmbMediaTreeRepository } from '@umbraco-cms/backoffice/media';
+import { UmbMediaTreeRepository } from '@umbraco-cms/backoffice/media';
 import type { UmbDropzoneChangeEvent, UmbUploadableItem } from '@umbraco-cms/backoffice/dropzone';
 import type { UUIInputEvent, UUIPaginationEvent } from '@umbraco-cms/backoffice/external/uui';
 import type { UmbTreeSelectionConfiguration } from '@umbraco-cms/backoffice/tree'
 import { UmbMediaItemRepository, UMB_MEDIA_ROOT_ENTITY_TYPE, UmbMediaSearchProvider } from '@umbraco-cms/backoffice/media';
-
 import type { UmbMediaPickerFolderPathElement, UmbMediaPickerModalData, UmbMediaPickerModalValue  } from '../node_modules/@umbraco-cms/backoffice/dist-cms/packages/media/media/modals';
-
 import type { UmbMediaTreeItemModel, UmbMediaSearchItemModel, UmbMediaItemModel, UmbMediaPathModel, UmbDropzoneMediaElement } from '@umbraco-cms/backoffice/media';
 import {
   	html,
@@ -22,11 +20,12 @@ import {
 import type { UmbEntityModel } from '@umbraco-cms/backoffice/entity';
 import { debounce, UmbPaginationManager } from '@umbraco-cms/backoffice/utils';
 import { isUmbracoFolder } from '@umbraco-cms/backoffice/media-type';
-import { UMB_CONTENT_PROPERTY_CONTEXT } from '@umbraco-cms/backoffice/content';
+import { UMB_PROPERTY_TYPE_BASED_PROPERTY_CONTEXT } from '@umbraco-cms/backoffice/content';
 import { UMB_VARIANT_CONTEXT } from '@umbraco-cms/backoffice/variant';
 
 import { ContentMediaRespository } from './ContentMedia/content-media-repository';
 import type { UmbSelectedEvent } from '@umbraco-cms/backoffice/event';
+import { MEDIA_FOLDER_TREE_ALIAS } from './manifests';
 
 const root: UmbMediaPathModel = { name: 'Media', unique: null, entityType: UMB_MEDIA_ROOT_ENTITY_TYPE };
 
@@ -93,7 +92,7 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 
 	constructor() {
 		super();
-		this.consumeContext(UMB_CONTENT_PROPERTY_CONTEXT , (context) => {
+		this.consumeContext(UMB_PROPERTY_TYPE_BASED_PROPERTY_CONTEXT , (context) => {
 			this.observe(context?.dataType, (dataType) => {
 				this.#dataType = dataType;
 				
@@ -324,8 +323,7 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 						look="primary"
 						color="positive"
 						@click=${this._submitModal}></uui-button>
-				</div>
-				
+				</div>	
 			</umb-body-layout>
 		`;
 	}
@@ -384,7 +382,7 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 			</div>
 
 			<div id="mediaTree" style="display:none" style="border:1px solid lightgrey">
-				<umb-tree .alias="${UMB_MEDIA_TREE_ALIAS}"></umb-tree>
+				<umb-tree .alias="${MEDIA_FOLDER_TREE_ALIAS}"></umb-tree>
 			</div>
 		`;
 	}
@@ -464,7 +462,7 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 								(item) => item.unique,
 								(item) => this.#renderCard(item),
 							)}
-						</div>`}
+					   </div>`}
 		`;
 	}
 

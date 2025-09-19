@@ -9,6 +9,10 @@ using Umbraco.Cms.Api.Management.Services.Entities;
 using Umbraco.Cms.Api.Management.ViewModels.Tree;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
+using Umbraco.Cms.Core.Composing;
+using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Models.Entities;
+using Umbraco.Cms.Core.Persistence.Querying;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Web.Common.Authorization;
@@ -20,37 +24,106 @@ namespace MediaSection.Controllers
 	[VersionedApiBackOfficeRoute($"{Constants.Web.RoutePath.Tree}/{Constants.UdiEntityType.Media}")]
 	[ApiExplorerSettings(GroupName = nameof(Constants.UdiEntityType.Media))]
 	[Authorize(Policy = AuthorizationPolicies.SectionAccessForMediaTree)]
-	public class MediaFoldersChildrenController : MediaTreeControllerBase
+	public class MediaFoldersController : MediaTreeControllerBase
 	{
-		private IEntityService _entityService;
+		private readonly IFilteredEntityService _filteredEntityService;
 		
-		public MediaFoldersChildrenController(
-			IMediaService mediaService,
-				 IEntityService entityService,
-				 IUserStartNodeEntitiesService userStartNodeEntitiesService,
-				 IDataTypeService dataTypeService,
-				 AppCaches appCaches,
-				 IBackOfficeSecurityAccessor backofficeSecurityAccessor,
-				 IMediaPresentationFactory mediaPresentationFactory)
-				 : base(entityService, userStartNodeEntitiesService, dataTypeService, appCaches, backofficeSecurityAccessor, mediaPresentationFactory)
+		public MediaFoldersController(
+			IFilteredEntityService filteredEntityService,
+			IEntityService entityService,
+			IUserStartNodeEntitiesService userStartNodeEntitiesService,
+			IDataTypeService dataTypeService,
+			AppCaches appCaches,
+			IBackOfficeSecurityAccessor backofficeSecurityAccessor,
+			IMediaPresentationFactory mediaPresentationFactory)
+			: base(entityService, userStartNodeEntitiesService, dataTypeService, appCaches, backofficeSecurityAccessor, mediaPresentationFactory)
 		{
+			_filteredEntityService = filteredEntityService;
+		}
+
+		[HttpGet("root/folders")]
+		[MapToApiVersion("1.0")]
+		[ProducesResponseType(typeof(PagedViewModel<MediaTreeItemResponseModel>), StatusCodes.Status200OK)]
+		public async Task<ActionResult<PagedViewModel<MediaTreeItemResponseModel>>> Root(
+			CancellationToken cancellationToken,
+			int skip = 0,
+			int take = 100,
+			Guid? dataTypeId = null)
+		{
+			IgnoreUserStartNodesForDataType(dataTypeId);
+			return await ChildMediaFolders(null, skip, take);
 		}
 
 		[HttpGet("folders")]
 		[MapToApiVersion("1.0")]
 		[ProducesResponseType(typeof(PagedViewModel<MediaTreeItemResponseModel>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<PagedViewModel<MediaTreeItemResponseModel>>> Children(
-			 CancellationToken cancellationToken,
-			 Guid parentId,
-			 int skip = 0,
-			 int take = 100,
-			 Guid? dataTypeId = null)
+			CancellationToken cancellationToken,
+			Guid parentId,
+			int skip = 0,
+			int take = 100,
+			Guid? dataTypeId = null)
 		{
 			IgnoreUserStartNodesForDataType(dataTypeId);
-			var children = _entityService.GetChildren(parentId, Umbraco.Cms.Core.Models.UmbracoObjectTypes.Media)
-				.Where(i => i.NodeObjectType == new Guid("f38bd2d7-65d0-48e6-95dc-87ce06ec2d3d"));
-			return Ok(children);
+			return await ChildMediaFolders(parentId, skip, take);
 		}
 
+		protected Task<ActionResult<PagedViewModel<MediaTreeItemResponseModel>>> ChildMediaFolders(Guid? parentId, int skip, int take)
+		{
+			IEntitySlim[] children = _filteredEntityService.GetPagedChildren(parentId, UmbracoObjectTypes.Media, skip, take, out var totalItems).ToArray();
+			MediaTreeItemResponseModel[] treeItemViewModels = MapTreeItemViewModels(parentId, children);
+			PagedViewModel<MediaTreeItemResponseModel> result = PagedViewModel(treeItemViewModels, totalItems);
+			return Task.FromResult<ActionResult<PagedViewModel<MediaTreeItemResponseModel>>>(Ok(result));
+		}
+	}
+
+	public interface IFilteredEntityService
+	{
+		IEnumerable<IEntitySlim> GetPagedChildren(
+			 Guid? parentKey,
+			 UmbracoObjectTypes childObjectType,
+			 int skip,
+			 int take,
+			 out long totalRecords,
+			 IQuery<IUmbracoEntity>? filter = null,
+			 Ordering? ordering = null);
+	}
+
+	public class MediaFoldersOnlyFilteredEntityService : IFilteredEntityService
+	{
+		private readonly IEntityService _entityService;
+		
+		public MediaFoldersOnlyFilteredEntityService(IEntityService entityService)
+		{
+			_entityService = entityService;
+		}
+		
+		public IEnumerable<IEntitySlim> GetPagedChildren(
+			Guid? parentKey,
+			UmbracoObjectTypes childObjectType,
+			int skip,
+			int take,
+			out long totalRecords,
+			IQuery<IUmbracoEntity>? filter = null,
+			Ordering? ordering = null)
+		{
+			return
+				_entityService
+					.GetPagedChildren(parentKey, childObjectType, skip, take, out totalRecords, filter, ordering)
+					.Where(FoldersOnlyFilter);
+		}
+
+		private bool FoldersOnlyFilter(IEntitySlim e) => e is IMediaEntitySlim && ((IMediaEntitySlim)e).ContentTypeKey == new Guid("f38bd2d7-65d0-48e6-95dc-87ce06ec2d3d");// TODO : Don't hardcode
+
+	}
+
+
+	public class MediaApiComposer : IComposer // TODO : Split
+	{
+		public void Compose(IUmbracoBuilder builder)
+		{
+
+			builder.Services.AddTransient<IFilteredEntityService, MediaFoldersOnlyFilteredEntityService>();
+		}
 	}
 }

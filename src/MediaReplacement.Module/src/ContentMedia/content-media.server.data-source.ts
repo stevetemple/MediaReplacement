@@ -1,4 +1,3 @@
-
 import { ContentMediaService } from './content-media-service';
 import { type GetMediaForContentRequestArgs } from './types';
 import {type MediaTreeItemResponseModel } from '@umbraco-cms/backoffice/external/backend-api';
@@ -7,6 +6,7 @@ import { UMB_MEDIA_ENTITY_TYPE, UMB_MEDIA_ROOT_ENTITY_TYPE, type UmbMediaTreeIte
 export interface ContentMediaSource {
 
     getMediaForContent(args: GetMediaForContentRequestArgs) : Promise<any>;
+
 }
 
 export class ContentMediaDataSource implements ContentMediaSource {
@@ -29,6 +29,7 @@ export class ContentMediaDataSource implements ContentMediaSource {
 }
 
 const mapper = (item: MediaTreeItemResponseModel): UmbMediaTreeItemModel => {
+
     return {
         unique: item.id,
         parent: {
