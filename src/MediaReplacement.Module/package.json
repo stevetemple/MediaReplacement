@@ -10,10 +10,11 @@
     "watch": "vite build --watch"
   },
   "dependencies": {
+    "@hey-api/openapi-ts": "^0.77.0",
     "lit": "^3.3.0"
   },
   "devDependencies": {
-    "@umbraco-cms/backoffice": "^16.0.0-rc5",
+    "@umbraco-cms/backoffice": "^16.1.0",
     "typescript": "~5.8.3",
     "vite": "^6.3.5"
   }

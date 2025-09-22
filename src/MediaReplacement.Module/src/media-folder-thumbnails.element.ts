@@ -1,12 +1,12 @@
 import { css, customElement, html, nothing, property, repeat, state, when } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
-import type { UmbMediaPathModel, UmbMediaTreeItemModel} from '@umbraco-cms/backoffice/media';
-import MyMediaTreeRepository from './Repository/my-media-tree-repository';
+import type { UmbMediaTreeItemModel} from '@umbraco-cms/backoffice/media';
+import { UmbMediaTreeRepository } from '@umbraco-cms/backoffice/media';
 
 @customElement('umb-media-folder-thumbnails')
 export class MediaFolderThumbnailsElement extends UmbLitElement {
-    #mediaTreeRepository = new MyMediaTreeRepository(this);
+    #mediaTreeRepository = new UmbMediaTreeRepository(this);
 
 	/**
 	 * The parent media item to get thumbnails for
@@ -71,7 +71,7 @@ export class MediaFolderThumbnailsElement extends UmbLitElement {
 	#renderThumbnails() {
 		if (this._isLoading) return nothing;
 
-        return repeat(this.children, (item) => html`${this.#renderThumbnail(item)}`);
+        return html`<div class="thumbnails">${repeat(this.children, (item) => html`${this.#renderThumbnail(item)}`)}</div>`;
 	}
 
     #renderThumbnail(item : any) { 
@@ -148,11 +148,20 @@ export class MediaFolderThumbnailsElement extends UmbLitElement {
 				font-size: var(--uui-size-8);
 			}
 			
+			.thumbnails {
+				flex-wrap:wrap;
+				display:flex;
+				width:100%;
+				height:100%;
+				margin:0;
+				vertical-align:top;
+				padding:2px;
+			}
+
 			.tinyThumb {
 				width:30px;
 				height:30px;
-				margin:5px;
-				vertical-align:top;
+				margin: 8px 0 0 8px;
 			}
 		`,
 	];

@@ -1,7 +1,14 @@
-
 import { umbExtensionsRegistry as e } from "@umbraco-cms/backoffice/extension-registry";
-import MyMediaTreeRepository from './Repository/my-media-tree-repository.js';
-import MyMediaTreeStore from './Repository/my-media-tree.store.js';
+import { ContentMediaRespository } from "./ContentMedia/content-media-repository.js";
+import { MediaFolderTreeRespository } from "./MediaFolderTree/media-folder-tree-repository.js";
+import { MediaFolderTreeDataSource } from "./MediaFolderTree/media-folder-tree.server.data-source.js";
+import { UmbMediaFolderTreeContext } from "./MediaFolderTree/media-folder-tree-context.js";
+
+export * from './media-folder-thumbnails.element.js'
+
+export const MEDIA_FOLDER_TREE_REPOSITORY_ALIAS = 'Media.Folder.Tree.Repository';
+export const MEDIA_FOLDER_TREE_STORE_ALIAS = 'Media.Folder.Tree.Store';
+export const MEDIA_FOLDER_TREE_ALIAS = 'Media.Folder.Tree';
 
 e.unregister("Umb.Modal.MediaPicker");
 const o = [
@@ -13,15 +20,30 @@ const o = [
   },
   {
     type: 'repository',
-    alias: 'My.Media.Tree.Repository',
-    name: 'My Media Tree Repository',
-    api: MyMediaTreeRepository
+    alias: 'ContentMediaRepository',
+    name: 'Content Media Repository',
+    api: ContentMediaRespository
+  },
+  {
+    type: 'repository',
+    alias: MEDIA_FOLDER_TREE_REPOSITORY_ALIAS,
+    name: 'Media Folder Repository',
+    api: MediaFolderTreeRespository
   },
   {
     type: 'treeStore',
-    alias: 'My.Media.Tree.Store',
-    name: 'My Media Tree Store',
-    api: MyMediaTreeStore
+    alias: MEDIA_FOLDER_TREE_STORE_ALIAS,
+    name: 'Time tree Store',
+    api: MediaFolderTreeDataSource
+  },
+  {
+    type: 'tree',
+    alias: MEDIA_FOLDER_TREE_ALIAS,
+    name: 'Media Folder tree',
+    meta: {
+        repositoryAlias: MEDIA_FOLDER_TREE_REPOSITORY_ALIAS
+    },
+    api: UmbMediaFolderTreeContext
   }
 ], a = [
   ...o

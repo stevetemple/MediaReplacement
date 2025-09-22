@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="MediaReplacement.TestSite/Umbraco.Community.MediaReplacement.TestSite.csproj" />
+  <Project Path="Umbraco.Community.MediaReplacement.Services/Umbraco.Community.MediaReplacement.Services.csproj" Id="eee91066-e90e-4725-a4f2-7a1e85b978bc" />
+</Solution>
