@@ -8,8 +8,7 @@ export class MediaFolderTreeRespository extends UmbTreeRepositoryBase<
 		UmbMediaTreeItemModel,
 		UmbMediaTreeRootModel,
 		UmbMediaTreeRootItemsRequestArgs,
-		UmbMediaTreeChildrenOfRequestArgs
-	>
+		UmbMediaTreeChildrenOfRequestArgs>
 	implements UmbApi {
 
     constructor(host: UmbControllerHost) {

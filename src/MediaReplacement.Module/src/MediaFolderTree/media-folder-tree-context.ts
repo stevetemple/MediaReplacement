@@ -6,8 +6,8 @@ import type { UmbMediaTreeItemModel, UmbMediaTreeRootItemsRequestArgs, UmbMediaT
 export class UmbMediaFolderTreeContext extends UmbDefaultTreeContext<
 	UmbMediaTreeItemModel,
 	UmbMediaTreeRootModel,
-	UmbMediaTreeRootItemsRequestArgs
-> {
+	UmbMediaTreeRootItemsRequestArgs> {
+        
 	constructor(host: UmbControllerHost) {
 		super(host);
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Umbraco.Cms.Api.Management.Controllers;
 using Umbraco.Cms.Api.Management.Factories;
@@ -10,7 +11,7 @@ using Umbraco.Cms.Core.Models.Entities;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Web.Common.Authorization;
 
-namespace MediaReplacement.Controllers
+namespace Umbraco.Community.MediaReplacement.Services.Controllers
 {
 	[ApiController]
 	[VersionedApiBackOfficeRoute($"{Constants.UdiEntityType.Document}/{{id}}/{Constants.UdiEntityType.Media}")]

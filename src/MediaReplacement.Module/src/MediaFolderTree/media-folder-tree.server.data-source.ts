@@ -8,8 +8,7 @@ export class MediaFolderTreeDataSource extends UmbTreeServerDataSourceBase<
 	MediaTreeItemResponseModel,
 	UmbMediaTreeItemModel,
 	UmbMediaTreeRootItemsRequestArgs,
-	UmbMediaTreeChildrenOfRequestArgs
-> {
+	UmbMediaTreeChildrenOfRequestArgs> {
 
     constructor(host: UmbControllerHost) {
     	super(host, {
@@ -43,7 +42,6 @@ const getAncestorsOf = (args: UmbTreeAncestorsOfRequestArgs) =>
 	});
 
 const mapper = (item: MediaTreeItemResponseModel): UmbMediaTreeItemModel => {
-
     return {
         unique: item.id,
         parent: {
