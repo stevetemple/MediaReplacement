@@ -312,6 +312,16 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 		}
 	}
 
+	async #onMediaFolderTreeSelected(e: UmbSelectedEvent) {
+		if(e.unique !== null) {
+			const unique = { unique : e.unique };
+			const selection = this.data?.multiple ? [...this.value.selection, unique.unique!] : [unique.unique!];
+			//this.modalContext?.setValue({ selection });
+
+			//this._currentMediaEntity = unique;
+		}
+	}
+
   	override render() {
 		return html`
 			<umb-body-layout headline=${this.localize.term('defaultdialogs_chooseMedia')}>
@@ -356,6 +366,12 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 	}
 
 	#renderUploadTab() {
+		const selectionConfiguration: UmbTreeSelectionConfiguration = {
+			multiple: false,
+			selectable: true,
+			selection: [],
+		};
+
 		return html`
 			<div class="dropzone" @click=${() => this._dropzone.browse()}>
 				<uui-symbol-file-dropzone></uui-symbol-file-dropzone>
@@ -382,7 +398,14 @@ export class UmbMediaPickerReplacementModalElement extends UmbModalBaseElement<U
 			</div>
 
 			<div id="mediaTree" style="display:none" style="border:1px solid lightgrey">
-				<umb-tree .alias="${MEDIA_FOLDER_TREE_ALIAS}"></umb-tree>
+				<umb-tree 
+					.alias="${MEDIA_FOLDER_TREE_ALIAS}"
+					.props=${{
+						selectionConfiguration: selectionConfiguration,
+						hideTreeRoot: true
+					}}
+					@selected=${this.#onMediaFolderTreeSelected}>
+				</umb-tree>
 			</div>
 		`;
 	}
