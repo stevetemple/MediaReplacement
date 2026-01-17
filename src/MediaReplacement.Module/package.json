@@ -10,7 +10,7 @@
     "watch": "vite build --watch"
   },
   "dependencies": {
-    "@hey-api/openapi-ts": "^0.77.0",
+    "@hey-api/openapi-ts": "^0.90.4",
     "lit": "^3.3.0"
   },
   "devDependencies": {
